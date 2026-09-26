@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HISTORA — Journey Through Civilizations</title>
+<style>
+:root{--bg:#0d1220;--card:#171e30;--gold:#f0c35a;--text:#f8f3e8;--muted:#b8bdca;--accent:#7bc7c9}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(135deg,#0b1020,#1a1322);color:var(--text);line-height:1.55}
+header{padding:28px 6%;background:rgba(13,18,32,.95);border-bottom:1px solid #30384c;position:sticky;top:0;z-index:10}
+.logo{font-size:clamp(2.2rem,6vw,4.5rem);font-weight:900;letter-spacing:4px;color:var(--gold);margin:0}
+.tagline{margin:4px 0;color:var(--muted)}
+nav{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+button{border:0;border-radius:12px;padding:11px 16px;background:var(--gold);color:#17120a;font-weight:800;cursor:pointer}
+button.secondary{background:#293349;color:white}
+button:hover{transform:translateY(-1px);filter:brightness(1.08)}
+main{max-width:1200px;margin:auto;padding:30px 6%}
+.hero{padding:38px;border:1px solid #39445e;border-radius:26px;background:radial-gradient(circle at top right,#49365d,#173747 45%,#141a2b);box-shadow:0 18px 50px #0006}
+.hero h1{font-size:clamp(2rem,5vw,3.7rem);margin:10px 0}
+.hero p{font-size:1.08rem;color:#e0dfdf;max-width:760px}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#293650;color:#dbeaff;font-size:.78rem;font-weight:700}
+section{margin-top:28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid #30394d;border-radius:18px;padding:20px;box-shadow:0 8px 25px #0003}
+.card h3{color:var(--gold);margin-top:0}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.progress{height:13px;background:#262e40;border-radius:99px;overflow:hidden}
+.progress>div{height:100%;width:0;background:var(--gold);transition:.3s}
+.comic{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.panel{min-height:160px;padding:18px;border-radius:16px;background:#f0e2c5;color:#2a2118;border:4px solid #87613d}
+.panel b{display:block;font-size:1.1rem;margin-bottom:9px}
+.quiz button{display:block;width:100%;text-align:left;margin:9px 0;background:#293349;color:white}
+.quiz button.correct{background:#236246}
+.quiz button.wrong{background:#713b43}
+input{padding:12px;border-radius:10px;border:1px solid #596276;background:#0f1420;color:white;width:min(500px,100%)}
+footer{text-align:center;padding:35px;color:#8991a2}
+.small{font-size:.9rem}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">HISTORA</div>
+  <div class="tagline">A game of civilizations, stories, people, monuments and mysteries.</div>
+  <nav>
+    <button onclick="show('home')">Home</button>
+    <button onclick="show('levels')">🗺️ 7 Levels</button>
+    <button onclick="show('women')">👩 Women</button>
+    <button onclick="show('monuments')">🏛️ Monuments</button>
+    <button onclick="show('quiz')">🧠 Quiz</button>
+    <button onclick="show('treasure')">🔐 Treasure Hunt</button>
+  </nav>
+</header>
+
+<main>
+<section id="home">
+  <div class="hero">
+    <span class="badge">FREE • GITHUB PAGES READY • NO BACKEND</span>
+    <h1>History is an adventure.</h1>
+    <p>Travel through seven historical worlds. Unlock mini-comics, discover remarkable women, identify monuments, answer quizzes and solve the final treasure hunt.</p>
+    <button onclick="show('levels')">START THE JOURNEY →</button>
+  </div>
+  <section>
+    <h2>Your Progress</h2>
+    <div class="progress"><div id="bar"></div></div>
+    <p id="progressText" class="muted">0 / 7 levels completed</p>
+  </section>
+</section>
+
+<section id="levels" class="hidden">
+  <h2>🗺️ Seven Levels</h2>
+  <p class="muted">Complete a level to collect its treasure clue.</p>
+  <div id="levelGrid" class="grid"></div>
+  <div id="comicArea"></div>
+</section>
+
+<section id="women" class="hidden">
+  <h2>👩 Women of History</h2>
+  <p class="muted">Ten featured women for each HISTORA world.</p>
+  <div id="womenGrid" class="grid"></div>
+</section>
+
+<section id="monuments" class="hidden">
+  <h2>🏛️ Monument Gallery</h2>
+  <div id="monGrid" class="grid"></div>
+</section>
+
+<section id="quiz" class="hidden">
+  <h2>🧠 HISTORA Quiz</h2>
+  <div id="quizBox" class="quiz"></div>
+  <p id="quizResult"></p>
+</section>
+
+<section id="treasure" class="hidden">
+  <h2>🔐 Final Treasure Hunt</h2>
+  <div class="card">
+    <p>Complete the seven levels and collect all seven clue letters.</p>
+    <p><b>Your collected clues:</b> <span id="clues">—</span></p>
+    <p><b>Final riddle:</b> “I connect the past and present. I am made of stories, places and people. What am I?”</p>
+    <input id="answer" placeholder="Type your answer">
+    <button onclick="solveTreasure()">Unlock Treasure</button>
+    <p id="treasureResult"></p>
+  </div>
+</section>
+</main>
+
+<footer>HISTORA • Student Innovation Project • Built with HTML, CSS & JavaScript</footer>
+
+<script>
+const levels=[
+{name:"Ancient India",era:"Civilization & classical India",comic:["A city grows beside a great river.","Scholars develop ideas in mathematics, medicine and literature.","Temples, stupas and learning centres become places of culture."],women:["Gargi Vachaknavi","Maitreyi","Razia Sultan","Rani Durgavati","Ahilyabai Holkar","Rani Lakshmibai","Savitribai Phule","Anandibai Joshi","Sarojini Naidu","Begum Rokeya"],mon:"Sanchi Stupa",clue:"H"},
+{name:"Ancient Egypt",era:"Nile civilization",comic:["The Nile supports farms and growing settlements.","Writing helps record administration, stories and knowledge.","Monumental architecture reflects the society's beliefs and skills."],women:["Hatshepsut","Nefertiti","Cleopatra VII","Sobekneferu","Ahhotep I","Tiye","Tausret","Nefertari","Ankhesenamun","Merit Ptah"],mon:"Pyramids of Giza",clue:"I"},
+{name:"Ancient Greece",era:"City-states & classical culture",comic:["Independent city-states develop distinct traditions.","Philosophers ask questions about nature, knowledge and society.","Drama, sculpture and architecture leave a lasting legacy."],women:["Sappho","Aspasia","Artemisia I","Gorgo","Hydna","Telesilla","Agnodice","Phryne","Arete of Cyrene","Hipparchia"],mon:"Parthenon",clue:"S"},
+{name:"Ancient China",era:"Dynasties & Silk Road",comic:["River valleys support large farming communities.","Inventions and scholarship influence everyday life.","Trade routes connect distant regions through the Silk Road."],women:["Fu Hao","Ban Zhao","Empress Lü","Empress Wu Zetian","Cai Wenji","Princess Pingyang","Li Qingzhao","Huang Daopo","Qiu Jin","Consort Ban"],mon:"Great Wall of China",clue:"T"},
+{name:"Ancient Rome",era:"Republic & Empire",comic:["Rome grows from a city into a major Mediterranean power.","Roads and laws help connect territories.","Engineering shapes cities, buildings and infrastructure."],women:["Livia Drusilla","Cornelia Africana","Fulvia","Agrippina the Younger","Julia Domna","Boudica","Zenobia","Galla Placidia","Hypatia","Claudia Quinta"],mon:"Colosseum",clue:"O"},
+{name:"Mesoamerica",era:"Maya & Aztec worlds",comic:["Cities develop sophisticated calendars, art and writing.","Trade connects communities across regions.","Architecture and astronomy flourish in major centres."],women:["Lady Six Sky","Lady Xok","Ix K'abel","Lady of Calakmul","Atotoztli","Eréndira","Malintzin","Tecuichpo Ixcaxochitzin","Tlapalizquixochtzin","Lady of Tikal"],mon:"Chichen Itza",clue:"R"},
+{name:"Medieval & Early Modern World",era:"Knowledge, trade & transformation",comic:["Trade routes bring languages and ideas together.","Libraries and universities preserve and expand knowledge.","New technologies transform travel, communication and learning."],women:["Fatima al-Fihri","Murasaki Shikibu","Hildegard of Bingen","Christine de Pizan","Isabella I","Nur Jahan","Sor Juana Inés de la Cruz","Maria Sibylla Merian","Mary Wollstonecraft","Ada Lovelace"],mon:"Alhambra",clue:"A"}
+];
+
+const questions=[
+["Which river was central to ancient Egyptian civilization?",["Nile","Amazon","Thames"],0],
+["The Parthenon is associated with which civilization?",["Greece","Maya","Rome"],0],
+["Which monument is in Rome?",["Colosseum","Sanchi Stupa","Great Wall"],0],
+["The Silk Road connected regions mainly across which broad area?",["Eurasia","Antarctica","Australia only"],0],
+["Which civilization is associated with Chichen Itza?",["Mesoamerica","Ancient Egypt","Ancient Greece"],0],
+["Sanchi is especially associated with which tradition?",["Buddhist heritage","Viking heritage","Maya heritage"],0]
+];
+
+let unlocked=JSON.parse(localStorage.getItem("historaUnlocked")||"[]");
+let quizScore=0;
+
+function show(id){
+ document.querySelectorAll("main>section").forEach(s=>s.classList.add("hidden"));
+ document.getElementById(id).classList.remove("hidden");
+ if(id==="levels")renderLevels();
+ if(id==="women")renderWomen();
+ if(id==="monuments")renderMonuments();
+ if(id==="quiz")renderQuiz();
+ if(id==="treasure")renderTreasure();
+ update();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderLevels(){
+ document.getElementById("levelGrid").innerHTML=levels.map((l,i)=>`
+ <div class="card">
+  <span class="badge">LEVEL ${i+1}</span>
+  <h3>${l.name}</h3>
+  <p class="muted">${l.era}</p>
+  <p>${l.comic[0]}</p>
+  <button onclick="openLevel(${i})">${unlocked.includes(i)?"✓ COMPLETED — READ AGAIN":"EXPLORE LEVEL"}</button>
+ </div>`).join("");
+}
+
+function openLevel(i){
+ if(!unlocked.includes(i)){
+   unlocked.push(i);
+   localStorage.setItem("historaUnlocked",JSON.stringify(unlocked));
+ }
+ const l=levels[i];
+ document.getElementById("comicArea").innerHTML=`
+ <section class="card">
+  <span class="badge">LEVEL ${i+1} • MINI-COMIC</span>
+  <h2>${l.name}</h2>
+  <div class="comic">
+   ${l.comic.map((x,n)=>`<div class="panel"><b>Panel ${n+1}</b>${x}</div>`).join("")}
+  </div>
+  <p><b>Treasure clue earned:</b> ${l.clue}</p>
+  <button onclick="show('quiz')">Take a Quiz →</button>
+ </section>`;
+ renderLevels();update();
+ document.getElementById("comicArea").scrollIntoView({behavior:"smooth"});
+}
+
+function renderWomen(){
+ document.getElementById("womenGrid").innerHTML=levels.map((l,i)=>`
+ <div class="card">
+  <span class="badge">LEVEL ${i+1}</span><h3>${l.name}</h3>
+  ${l.women.map((w,n)=>`<p><b>${n+1}.</b> ${w}</p>`).join("")}
+ </div>`).join("");
+}
+
+function renderMonuments(){
+ document.getElementById("monGrid").innerHTML=levels.map((l,i)=>`
+ <div class="card"><span class="badge">LEVEL ${i+1}</span><h3>${l.mon}</h3><p>${l.era}</p><p class="muted">${l.comic[1]}</p></div>`).join("");
+}
+
+function renderQuiz(){
+ document.getElementById("quizBox").innerHTML=questions.map((q,i)=>`
+ <div class="card"><h3>Question ${i+1}</h3><p>${q[0]}</p>
+ ${q[1].map((a,j)=>`<button onclick="answerQuiz(${i},${j},this)">${a}</button>`).join("")}
+ </div>`).join("");
+ document.getElementById("quizResult").textContent="Score: "+quizScore;
+}
+
+function answerQuiz(i,j,btn){
+ const parent=btn.parentElement;
+ if(parent.dataset.done)return;
+ parent.dataset.done="1";
+ const correct=questions[i][2];
+ if(j===correct){btn.classList.add("correct");quizScore++;document.getElementById("quizResult").textContent="Score: "+quizScore;}
+ else{btn.classList.add("wrong");parent.querySelectorAll("button")[correct].classList.add("correct");}
+}
+
+function renderTreasure(){
+ document.getElementById("clues").textContent=unlocked.length?unlocked.sort((a,b)=>a-b).map(i=>levels[i].clue).join(" • "):"—";
+}
+
+function solveTreasure(){
+ const answer=document.getElementById("answer").value.trim().toLowerCase();
+ const result=document.getElementById("treasureResult");
+ if(unlocked.length<7){result.textContent="🔒 Complete all 7 levels first!";return}
+ if(answer.includes("history")||answer.includes("histora")||answer.includes("civilization")){
+   result.textContent="🏆 TREASURE UNLOCKED! You completed the HISTORA journey!";
+ }else{
+   result.textContent="Not quite! Think about what connects stories, places and people from the past.";
+ }
+}
+
+function update(){
+ const n=unlocked.length;
+ document.getElementById("bar").style.width=(n/7*100)+"%";
+ document.getElementById("progressText").textContent=n+" / 7 levels completed";
+}
+update();
+</script>
+</body>
+</html>
